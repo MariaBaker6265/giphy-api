@@ -2,27 +2,26 @@
 <html>
 <head>
 	<title>Giphy API</title>
-	<!--Link to reset css.-->
+  <!--Link to reset css.-->
 	<link rel="stylesheet" type="text/css" href="css/reset.css">
 	<!--Link to style css.-->
 	<link rel="stylesheet" type="text/css" href="css/style.css">
 	<!-- Link to the jQuery Library -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<!-- Link to JavaScript -->
-	<!--<script type="text/javascript" src="assets/javascript/giphy.js"></script>-->
 	<!-- Link to Bootstrap-->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
-    <!--Link to google fonts.-->
+  <!--Link to google fonts.-->
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
-    <!--Set the charcter set to UTF-8-->
+  <!--Set the charcter set to UTF-8-->
   <link href="https://fonts.googleapis.com/css?family=Candal" rel="stylesheet">
   <meta charset="UTF-8">
-    <!--Viewport-->
+  <!--Viewport-->
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 
 <body>
 	<div id="giphy-view"></div>
+  <div class = "item" id="gifs-appear-here"></div>
 	<script type="text/javascript">
 
 	 var topics = ["psychic", "magician", "gypsy"]
@@ -53,17 +52,80 @@
         }
       }
 
-  // On click function. THIS ON CLICK IS NOT WORKING!
+  // On click function. Note: ".on" triggers the event even on added elements.  The syntax for ".on" is:  $("container").on("click", "selector", handler);
+  //Where "container" selects a static container element (in this case the "#giphy-view" div), and "selector" is the element you want to target (in this case a button located in the #giphy-view" div).
 
-      $("button").on("click", function() {
+      $("#giphy-view").on("click", "button", function(){
       
         var search = $(this).attr("data-search");
-        
+        //Debugging/Testing
         console.log(search);
-      });
+
+        var queryURL = "https://api.giphy.com/v1/gifs/search?q=" + search + " &api_key=fBD8hiZry7FYVcVCnUXa7qagK5chyVoe&limit=10";
+       
+       $.ajax({
+                url:queryURL, 
+                method: 'GET'
+              })
+
+        .done(function(response){
+            //Debugging/Testing
+            console.log(response);
+            //Create the variable "results" to hold the API response data which should be 10 giphs.
+            var results = response.data;
+            //Loop through the length of results and create a div with class "item" to display each result.
+            for (var i = 0; i < results.length; i++) {
+            
+            var gifDiv = $("<div class='item'>");
+            //Declare the variable "rating" to store the rating of each giph in the array.
+            var rating = results[i].rating;
+            //Declare the variable "p" to create a paragraph to display each rating.
+            var p = $("<p>").text("Rating: " + rating);
+            //Declare the variable "personImage" to create an image div for each giph.
+            var personImage = $("<img class='gif'>");
+            //Add a source attribute for each image and assign a fixed height. 
+            personImage.attr("src", results[i].images.fixed_height.url);
+            //Prepend the variable "p" to display the rating and the variable "personImage" to display the image for each giph.
+            personImage.attr("data-state", "animate");
+            
+            //CODE NOT WORKING
+            personImage.addClass("gif");
+            
+            personImage.attr("data-state", "animate", results[i].images.fixed_height.url);
+            
+            //END CODE NOT WORKING
+
+            gifDiv.prepend(p);
+            gifDiv.prepend(personImage);
+            //Select the "gifs-appear-here" div and prepend the gifDiv into it.
+            $("#gifs-appear-here").prepend(gifDiv);
+          }
+
+          });
+        });
+//=======================================================
+         $(".gif").on("click", function() {
+      // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
+      
+      var state = $(this).attr("data-state");
+      console.log(state);
+      // If the clicked image's state is still, update its src attribute to what its data-animate value is.
+      // Then, set the image's data-state to animate
+      // Else set src to the data-still value
+      if (state === "still") {
+        $(this).attr("src", $(this).attr("data-animate"));
+        $(this).attr("data-state", "animate");
+      } else {
+        $(this).attr("src", $(this).attr("data-still"));
+        $(this).attr("data-state", "still");
+      }
+    });
+//CALL FUNCTIONS=======================================================       
+renderButtons();
+  //}
       
 
-       renderButtons();
+       
    
 		//When the user clicks on a button, the page should grab 10 static, non-animated gif images from the GIPHY API and place them on the page. 
 		//When the user clicks one of the still GIPHY images, the gif should animate. If the user clicks the gif again, it should stop playing.
