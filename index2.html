@@ -54,7 +54,6 @@
 
   // On click function. Note: ".on" triggers the event even on added elements.  The syntax for ".on" is:  $("container").on("click", "selector", handler);
   //Where "container" selects a static container element (in this case the "#giphy-view" div), and "selector" is the element you want to target (in this case a button located in the #giphy-view" div).
-
       $("#giphy-view").on("click", "button", function(){
       
         var search = $(this).attr("data-search");
@@ -82,14 +81,16 @@
             //Declare the variable "p" to create a paragraph to display each rating.
             var p = $("<p>").text("Rating: " + rating);
             //Declare the variable "personImage" to create an image div for each giph.
-            var personImage = $("<img class='gif'>");
+            var personImage = $("<img>");
             //Add a source attribute for each image and assign a fixed height. 
             personImage.attr("src", results[i].images.fixed_height.url);
+            personImage.attr("data-animate", results[i].images.fixed_height.url);
+            personImage.attr("data-still", results[i].images.fixed_height.url_s);
+            personImage.attr("data-state", $(this).attr("animate"));
+              
+            $("personImage").addClass("gif");
+                                 
             //Prepend the variable "p" to display the rating and the variable "personImage" to display the image for each giph.
-            personImage.attr("data-still", results[i].images.fixed_height_still.url)
-            personImage.attr("data-state", "animate");
-            personImage.attr("data-animate", results[i].images.fixed_height.url);                   
-            //END CODE NOT WORKING
 
             gifDiv.prepend(p);
             gifDiv.prepend(personImage);
@@ -100,10 +101,9 @@
           });
         });
 //=======================================================
-         $("#gifs-appear-here").on("click", ".gif", function() {
+         $(".gif").on("click", function() {
       // The attr jQuery method allows us to get or set the value of any attribute on our HTML element
-      
-      var state = $(this).attr("data-state");
+      var state = $(this).attr("src", "data-state");
       console.log(state);
       // If the clicked image's state is still, update its src attribute to what its data-animate value is.
       // Then, set the image's data-state to animate
@@ -116,7 +116,7 @@
         $(this).attr("data-state", "still");
       }
     });
-//CALL FUNCTIONS=======================================================       
+//Render Buttons=======================================================       
 renderButtons();
   //}
       
